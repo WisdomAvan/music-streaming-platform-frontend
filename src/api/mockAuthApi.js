@@ -19,3 +19,19 @@ export function mockLoginUser(email, password){
     });
 
 }
+
+export function mockRegisterUser(name, email, password) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (email === "test@soundstream.com") {
+        reject({ status: 409, body: { message: "An account with this email already exists" } });
+        return;
+      }
+
+      resolve({
+        userId: "22222222-2222-2222-2222-222222222222",
+        message: "Registration successful. Please check your email to verify your account.",
+      });
+    }, 500);
+  });
+}

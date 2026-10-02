@@ -1,4 +1,4 @@
-import { mockLoginUser } from "./mockAuthApi";
+import { mockLoginUser, mockRegisterUser } from "./mockAuthApi";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === "true";
@@ -32,5 +32,29 @@ export async function loginUser(email, password) {
     throw new AuthError(response.status, data);
   }
 
-  return data; // { userId, accessToken, refreshToken, message }
+  return data;
+}
+
+export async function registerUser(name, email, password) {
+  if (USE_MOCKS) {
+    try {
+      return await mockRegisterUser(name, email, password);
+    } catch (err) {
+      throw new AuthError(err.status, err.body);
+    }
+  }
+
+  const response = await fetch(`${BASE_URL}/api/v1/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, password }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new AuthError(response.status, data);
+  }
+
+  return data;
 }
