@@ -11,9 +11,10 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     loginSucceeded(state, action) {
-      const { userId, accessToken } = action.payload;
+      const { userId, accessToken, refreshToken } = action.payload;
       state.accessToken = accessToken;
       state.user = { id: userId };
+      localStorage.setItem("refreshToken", refreshToken);
     },
     sessionRestoreFinished(state, action) {
       state.accessToken = action.payload ?? null;
@@ -22,14 +23,17 @@ const authSlice = createSlice({
     loggedOut(state) {
       state.accessToken = null;
       state.user = null;
+      localStorage.removeItem("refreshToken");
     },
   },
 });
 
-export const { loginSucceeded, sessionRestoreFinished, loggedOut } = authSlice.actions;
+export const { loginSucceeded, sessionRestoreFinished, loggedOut } =
+  authSlice.actions;
 export default authSlice.reducer;
 
 export const selectIsAuthenticated = (state) => Boolean(state.auth.accessToken);
 export const selectAccessToken = (state) => state.auth.accessToken;
-export const selectIsRestoringSession = (state) => state.auth.isRestoringSession;
+export const selectIsRestoringSession = (state) =>
+  state.auth.isRestoringSession;
 export const selectUser = (state) => state.auth.user;

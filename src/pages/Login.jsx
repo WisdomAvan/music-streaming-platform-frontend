@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { loginUser, AuthError } from "../api/authService";
 import { loginSchema } from "../features/auth/loginSchema";
 import { loginSucceeded } from "../features/auth/authSlice";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState({});
   const [serverError, setServerError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -38,7 +42,7 @@ export default function Login() {
     try {
       const data = await loginUser(result.data.email, result.data.password);
       dispatch(loginSucceeded(data));
-      // TODO: navigate to /home once routing is wired in
+      navigate("/home");
     } catch (err) {
       setServerError(err instanceof AuthError ? err.message : "Network error — please try again.");
     } finally {
@@ -70,13 +74,23 @@ export default function Login() {
 
         <label className="flex flex-col gap-1 text-sm text-neutral-400">
           Password
-          <input
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white"
-          />
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 pr-10 text-white"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           {fieldErrors.password && <span className="text-red-400 text-xs">{fieldErrors.password}</span>}
         </label>
 
